@@ -4,13 +4,16 @@ Repacks verbose GTFS feeds so that they consume less disk space.
 
 Created for [Transport NSW's GTFS feeds](https://tdx.transportnsw.info/) which are lazily converted from TransXchange format, and needlessly verbose.
 
+With Transport NSW's dataset, this reduces the files to about half of their original size, while being well-formed GTFS.  I'm aware you could do better with some binary format like `protobuf`, but we actually care about it still being GTFS.
+
 ## What it does ##
 
 - Removes Unicode byte order markers.
 - Removes unneeded quotation characters on CSV fields.
 - Rounds shape and stop latitude and longitude to 6 decimal places.
 - Rounds trip distances to 1 decimal place.
-- Rewrites the `shape_id`, `route_id`, `trip_id` and `service_id` fields so that they use incremental numeric values.
+- Rewrites the `shape_id`, `route_id`, `trip_id` and `service_id` fields so that they use incremental numeric values, instead of `1.TA.12-556-sj2-1.1.R`.
+- Blows up or gives bad data if you don't run it properly.
 
 ## Usage ##
 
@@ -23,7 +26,7 @@ This requires that you pass the files in this order:
 5. `trips.txt`
 6. `stop_times.txt`
 7. `stops.txt`
-7. All other files.
+8. All other files.
 
 They need to be done all in one shot, as existing IDs need to be remapped on the fly.  For example:
 
