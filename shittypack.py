@@ -22,7 +22,7 @@ python repack.py shapes.txt routes.txt calendar.txt calendar_dates.txt trips.txt
 
 """
 
-import argparse, csv, os, io
+import argparse, csv, os
 
 parser = argparse.ArgumentParser()
 
@@ -48,9 +48,35 @@ last_service_id = 0
 trip_map = {}
 last_trip_id = 0
 
+def swallow_windows_unicode(fileobj):
+	"""
+	Windows programs (specifically, Notepad) puts '\xef\xbb\xbf' at the start of
+	a Unicode text file.  This is used to handle "utf-8-sig" files.
+
+	This function looks for those bytes and advances the stream past them if
+	they are present.
+
+	Returns True if the characters were present.
+	"""
+	pos = fileobj.tell()
+	try:
+		bom = fileobj.read(3)
+	except:
+		# End of file, revert!
+		fileobj.seek(pos)
+	if bom == '\xef\xbb\xbf':
+		return True
+
+	# Bytes not present, rewind the stream
+	fileobj.seek(pos)
+	return False
+
+
 for fn in options.csv:
 	# Windows puts in Unicode BOM.  This will swallow it if it is present.
-	input_f = io.open(fn, 'r', encoding='utf-8-sig')
+	#input_f = io.open(fn, 'r', encoding='utf-8-sig')
+	input_f = open(fn, 'rb')
+	swallow_windows_unicode(input_f)
 	output_f = open(os.path.join(options.output_dir, fn), 'wb')
 
 	c = csv.reader(input_f)
