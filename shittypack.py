@@ -140,7 +140,7 @@ class ShittyPacker(object):
 		# Step two: find duplicates and merge
 		
 		# Step three: profit
-	
+
 		return cal_header, cal_c, date_header, date_c
 
 	def _f_shapes(self, header, c, oc):
