@@ -65,12 +65,11 @@ class ShittyPacker(object):
 		SPECIAL_NAMES = [
 			('shapes.txt', self._f_shapes),
 			('routes.txt', self._f_routes),
-			('calendar.txt', self._f_calendar),
-			('calendar_dates.txt', self._f_calendar_dates),
 			('trips.txt', self._f_trips),
 			('stop_times.txt', self._f_stop_times),
 			('stops.txt', self._f_stops),
 		]
+		SKIP_NAMES = ['calendar.txt', 'calendar_dates.txt']
 
 		# Remap the shape, route, service and trip IDs to simple numbers.
 		# This is a very simple algo, it could do Hoffman encoding to make it
@@ -91,6 +90,26 @@ class ShittyPacker(object):
 		self.out = zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED)
 		names = set(self.zip.namelist())
 
+		# Preprocess calendar entries.
+		cal_c, cal_header = (list(x) for x in self._open_csv('calendar.txt'))
+		date_c, date_header = (list(x) for x in self._open_csv('calendar_dates.txt'))
+		cal_header, cal_c, date_header, date_c = self._preprocess_calendar(cal_header, cal_c, date_header, date_c)
+
+		# Write calendar.txt
+		outf = StringIO.StringIO()
+		oc = csv.writer(outf)
+		oc.writerow(cal_header)
+		self._f_calendar(cal_header, cal_c, oc)
+		self.out.writestr('calendar.txt', outf.getvalue())
+
+		# Write calendar.txt
+		outf = StringIO.StringIO()
+		oc = csv.writer(outf)
+		oc.writerow(date_header)
+		self._f_calendar(date_header, date_c, oc)
+		self.out.writestr('calendar_dates.txt', outf.getvalue())
+
+		# Process other special files
 		for fn, processor in SPECIAL_NAMES:
 			if fn not in names:
 				print "WARNING: Could not find %r" % fn
@@ -104,7 +123,7 @@ class ShittyPacker(object):
 			self.out.writestr(fn, outf.getvalue())
 
 		# Now work out what's left
-		for fn in names - set((x[0] for x in SPECIAL_NAMES)):
+		for fn in (names - set((x[0] for x in SPECIAL_NAMES))) - set(SKIP_NAMES):
 			outf = StringIO.StringIO()
 			oc = csv.writer(outf)
 			c, header = self._open_csv(fn)
@@ -112,6 +131,17 @@ class ShittyPacker(object):
 			for r in c:
 				oc.writerow(r)
 			self.out.writestr(fn, outf.getvalue())
+
+	def _preprocess_calendar(self, cal_header, cal_c, date_header, date_c):
+		# Step one: replace all the route_ids with a hash composed of
+		# - the calendar bits
+		# - any holiday exclusions or inclusions
+		
+		# Step two: find duplicates and merge
+		
+		# Step three: profit
+	
+		return cal_header, cal_c, date_header, date_c
 
 	def _f_shapes(self, header, c, oc):
 		"""
