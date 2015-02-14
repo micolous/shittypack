@@ -15,7 +15,12 @@ With Transport NSW's dataset, this reduces the files to about half of their orig
 - Rounds shape and stop latitude and longitude to 6 decimal places.
 - Rounds trip distances to 1 decimal place.
 - Rewrites the `shape_id`, `route_id`, `trip_id` and `service_id` fields so that they use incremental numeric values, instead of `1.TA.12-556-sj2-1.1.R`.
-- **WIP:** [Rewriting `calendar.txt` to eliminate identical records.](https://github.com/micolous/shittypack/issues/3)
+- Rewrites `calendar.txt` and `calendar_dates.txt` to remove unused and duplicate records.
+- Removes entries from `trips.txt` and `stop_times.txt` for trips that are never taken (because of the calendar).
+
+This makes the file size of the GTFS data about **less than 40% of the original** (for Sydney, _see results below_).
+
+There are some other features [which are planned](https://github.com/micolous/shittypack/issues) to reduce the file size further.
 
 ## Usage ##
 
@@ -25,7 +30,7 @@ This requires you pass in the `google_transit.zip` file, and it will return a ne
 $ python shittypack.py google_transit.zip -o google_transit_packed.zip
 ```
 
-The output directory (`-o`) will be created, and this tool will not run if the output directory already exists.  This is a safety mechanism so it doesn't overwrite files.
+The output file (`-o`) will be created, and will update an existing archive if present.  Any files with the same name inside the archive will be overwritten.
 
 This tool is pretty unforgiving about problems (and shit).  It will probably give you bad output if it fails, and not complain about it.
 
@@ -37,37 +42,37 @@ This tool is pretty unforgiving about problems (and shit).  It will probably giv
 - Compressed ZIP (as supplied): 261 MiB
 
 ```
-  Length      Date    Time    Name
----------  ---------- -----   ----
-     4329  2015-01-01 23:09   agency.txt
-  3458772  2015-01-01 23:04   stops.txt
-   124288  2015-01-01 23:09   routes.txt
-    49408  2015-01-01 23:09   calendar.txt
-   122369  2015-01-01 23:09   calendar_dates.txt
-317571979  2015-01-01 23:09   shapes.txt
- 25273020  2015-01-01 23:09   trips.txt
-899601310  2015-01-01 23:09   stop_times.txt
----------                     -------
+   Length      Date    Time    Name
+ ---------  ---------- -----   ----
+      4329  2015-01-01 23:09   agency.txt
+     49408  2015-01-01 23:09   calendar.txt
+    122369  2015-01-01 23:09   calendar_dates.txt
+    124288  2015-01-01 23:09   routes.txt
+ 317571979  2015-01-01 23:09   shapes.txt
+ 899601310  2015-01-01 23:09   stop_times.txt
+   3458772  2015-01-01 23:04   stops.txt
+  25273020  2015-01-01 23:09   trips.txt
+ ---------                     -------
 1246205475                     8 files
 ```
 
 ### Shitty-packed data ###
 
-- Uncompressed: 579 MiB (49% of original)
-- Compressed ZIP: 144 MiB (55% of original)
+- Uncompressed: 467 MiB (39% of original)
+- Compressed ZIP: 115 MiB (44% of original)
 
 ```
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-    28580  2015-02-01 23:36   calendar.txt
-    67999  2015-02-01 23:36   calendar_dates.txt
-151615306  2015-02-01 23:37   shapes.txt
-    98360  2015-02-01 23:37   routes.txt
-  9645885  2015-02-01 23:37   trips.txt
-443701997  2015-02-01 23:37   stop_times.txt
-  2449603  2015-02-01 23:37   stops.txt
-     3788  2015-02-01 23:37   agency.txt
+     3788  2015-02-15 01:15   agency.txt
+     8935  2015-02-15 01:14   calendar.txt
+    17694  2015-02-15 01:14   calendar_dates.txt
+    98360  2015-02-15 01:14   routes.txt
+151615306  2015-02-15 01:14   shapes.txt
+328181393  2015-02-15 01:15   stop_times.txt
+  2449603  2015-02-15 01:15   stops.txt
+  7112780  2015-02-15 01:14   trips.txt
 ---------                     -------
-607611518                     8 files
-
+489487859                     8 files
 ```
+
