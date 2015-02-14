@@ -82,10 +82,11 @@ class ShittyPacker(object):
 
 		self.service_map = {}
 		self.last_service_id = 0
+		self.null_services = set()
 
 		self.trip_map = {}
 		self.last_trip_id = 0
-		self.null_trips = []
+		self.null_trips = set()
 
 		self.zip = zipfile.ZipFile(input_zip, 'r')
 		self.out = zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED)
@@ -167,7 +168,7 @@ class ShittyPacker(object):
 			if raw_trip_data[service_id]['days'] == '0000000' and len(raw_trip_data[service_id]['add']) == 0 and len(raw_trip_data[service_id]['exclude']) == 0:
 				# Trip never used!  Junk!
 				#print 'junking trip: %r' % service_id
-				self.null_trips.append(service_id)
+				self.null_services.add(service_id)
 				del raw_trip_data[service_id]
 			else:
 				# Hash the trip info
@@ -275,8 +276,9 @@ class ShittyPacker(object):
 
 			row[tid] = self.trip_map[row[tid]]
 			row[rid] = self.route_map[row[rid]]
-			if row[eid] in self.null_trips:
+			if row[eid] in self.null_services:
 				# Junked service_id that is never used, drop!
+				self.null_trips.add(row[tid])
 				continue
 			row[eid] = self.service_map[row[eid]]
 			row[hid] = self.shape_map[row[hid]]
@@ -289,12 +291,14 @@ class ShittyPacker(object):
 		"""
 		# Clamp trip distance to 1 decimal place
 		dst = header.index('shape_dist_traveled')
-		id = header.index('trip_id')
+		trip_id = header.index('trip_id')
 		for row in c:
 			if '.' in row[dst]:
 				row[dst] = row[dst][:row[dst].index('.')+2]
 
-			row[id] = self.trip_map[row[id]]
+			if row[trip_id] in self.null_trips:
+				continue
+			row[trip_id] = self.trip_map[row[trip_id]]
 
 			oc.writerow(row)
 
