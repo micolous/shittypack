@@ -36,9 +36,19 @@ This tool is pretty unforgiving about problems (and shit).  It will probably giv
 
 ## Results ##
 
-### TfNSW "full Greater Sydney data", 2015-01-04. ###
+Benefits are stated in the percentage of the size of the original uncompressed data vs. the shitty-packed data.
 
-Transport for NSW is large dataset, and an example of a really bad feed (as it is converted from TransXchange), so sees significant improvements after being shittypacked.
+As a result, lower percentages mean that shittypack was able to make big improvements, and indicates cities with poor quality data sources.
+
+Conversely, higher percentages mean that shittypack was not able to make big improvements, and may indicate cities with good quality data sources.  Or that they have issues which shittypack doesn't know how to sort out just yet.
+
+Values above 100% mean that shittypack actually made the size of the data bigger, and had a negative impact.
+
+### TfNSW "full Greater Sydney data", 2015-01-04 ###
+
+Transport for NSW is large dataset, and an example of a really bad feed (as it is converted from TransXchange), so sees significant improvements after being shitty-packed.
+
+Percentage of original size: 39%
 
 #### Source data ####
 
@@ -78,10 +88,55 @@ Transport for NSW is large dataset, and an example of a really bad feed (as it i
 489487859                     8 files
 ```
 
+### Auckland Transit, 2015-02-13 ###
+
+Auckland Transit's feed is mediocre, but is very verbose about calendar entries.  It doesn't have a large amount of services or accurate shape data (it doesn't follow roads or rail), which means the problems with the feed don't balloon out as much as larger networks.
+
+Percentage of original size: 69%
+
+#### Source data ####
+
+- Uncompressed: 47.3 MiB
+
+```
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      153  2015-02-13 06:27   agency.txt
+  1092156  2015-02-13 06:28   calendar.txt
+   429821  2015-02-13 06:29   calendar_dates.txt
+    95061  2015-02-13 06:27   routes.txt
+  2395801  2015-02-13 06:29   shapes.txt
+ 43844232  2015-02-13 06:32   stop_times.txt
+   307535  2015-02-13 06:27   stops.txt
+  1454830  2015-02-13 06:28   trips.txt
+---------                     -------
+ 49619589                     8 files
+```
+
+#### Shitty-packed data ####
+
+- Uncompressed: 32.5 MiB (69% of original)
+
+```
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      153  2015-02-15 02:00   agency.txt
+     1736  2015-02-15 02:00   calendar.txt
+     4238  2015-02-15 02:00   calendar_dates.txt
+    84787  2015-02-15 02:00   routes.txt
+  2289702  2015-02-15 02:00   shapes.txt
+ 30756607  2015-02-15 02:00   stop_times.txt
+   307535  2015-02-15 02:00   stops.txt
+   599894  2015-02-15 02:00   trips.txt
+---------                     -------
+ 34044652                     8 files
+```
 
 ### Adelaide Metro, 2015-02-12 ###
 
 Adelaide Metro's feed is very clean, and has not a large amount of services.  As a result it only sees small improvements with shittypack.  It also has some additional metadata in the file which shittypack handles.
+
+Percentage of original size: 87%
 
 #### Source Data ####
 
