@@ -34,12 +34,15 @@ The output file (`-o`) will be created, and will update an existing archive if p
 
 This tool is pretty unforgiving about problems (and shit).  It will probably give you bad output if it fails, and not complain about it.
 
-## Results -- Transport NSW "full Greater Sydney data", 2015-01-04. ##
+## Results ##
 
-### Source data ###
+### TfNSW "full Greater Sydney data", 2015-01-04. ###
+
+Transport for NSW is large dataset, and an example of a really bad feed (as it is converted from TransXchange), so sees significant improvements after being shittypacked.
+
+#### Source data ####
 
 - Uncompressed: 1.16 GiB
-- Compressed ZIP (as supplied): 261 MiB
 
 ```
    Length      Date    Time    Name
@@ -56,10 +59,9 @@ This tool is pretty unforgiving about problems (and shit).  It will probably giv
 1246205475                     8 files
 ```
 
-### Shitty-packed data ###
+#### Shitty-packed data ####
 
 - Uncompressed: 467 MiB (39% of original)
-- Compressed ZIP: 115 MiB (44% of original)
 
 ```
   Length      Date    Time    Name
@@ -74,5 +76,55 @@ This tool is pretty unforgiving about problems (and shit).  It will probably giv
   7112780  2015-02-15 01:14   trips.txt
 ---------                     -------
 489487859                     8 files
+```
+
+
+### Adelaide Metro, 2015-02-12 ###
+
+Adelaide Metro's feed is very clean, and has not a large amount of services.  As a result it only sees small improvements with shittypack.  It also has some additional metadata in the file which shittypack handles.
+
+#### Source Data ####
+
+- Uncompressed: 56.1 MiB
+
+```
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      778  2015-02-12 10:32   agency.txt
+     2113  2015-02-12 10:32   calendar.txt
+      461  2015-02-12 10:32   calendar_dates.txt
+      165  2015-02-12 09:51   feed_info.txt
+     1101  2015-02-12 09:50   Release Notes.txt
+    80413  2015-02-12 10:32   routes.txt
+ 14378603  2015-02-12 10:32   shapes.txt
+ 42558114  2015-02-12 10:32   stop_times.txt
+   969757  2015-02-12 10:32   stops.txt
+     9953  2015-02-12 10:32   transfers.txt
+   873208  2015-02-12 10:32   trips.txt
+---------                     -------
+ 58874666                     11 files
+```
+
+#### Shitty-packed data ####
+
+- Uncompressed: 48.9 MiB (87% of original)
+
+```
+Archive:  packed_adl.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      778  2015-02-15 01:39   agency.txt
+     1700  2015-02-15 01:39   calendar.txt
+      343  2015-02-15 01:39   calendar_dates.txt
+      167  2015-02-15 01:39   feed_info.txt
+     1103  2015-02-15 01:39   Release Notes.txt
+    79537  2015-02-15 01:39   routes.txt
+ 12194668  2015-02-15 01:39   shapes.txt
+ 37239230  2015-02-15 01:39   stop_times.txt
+   922242  2015-02-15 01:39   stops.txt
+     9953  2015-02-15 01:39   transfers.txt
+   803735  2015-02-15 01:39   trips.txt
+---------                     -------
+ 51253456                     11 files
 ```
 
