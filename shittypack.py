@@ -2,23 +2,9 @@
 """
 shittypack.py - Repacks GTFS data so that it is more compact.
 
-Transport NSW's dataset is so verbose because it is converted from TransExchange.
+Copyright 2014-2015 Michael Farrell <http://micolous.id.au/>;
 
-Copyright 2014 Michael Farrell <http://micolous.id.au/>; BSD 3-clause
-
-File order (as files must be in the correct order else this will break!)
-
-shapes.txt
-routes.txt
-calendar.txt
-calendar_dates.txt
-trips.txt
-stop_times.txt
-other files
-
-
-eg:
-python repack.py shapes.txt routes.txt calendar.txt calendar_dates.txt trips.txt stop_times.txt agency.txt stops.txt -o output/
+BSD 3-clause license, see COPYING.
 
 """
 
