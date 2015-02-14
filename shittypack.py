@@ -22,7 +22,7 @@ python repack.py shapes.txt routes.txt calendar.txt calendar_dates.txt trips.txt
 
 """
 
-import argparse, csv, os, zipfile
+import argparse, csv, hashlib, os, zipfile
 
 try:
 	import cStringIO as StringIO
@@ -85,29 +85,32 @@ class ShittyPacker(object):
 
 		self.trip_map = {}
 		self.last_trip_id = 0
+		self.null_trips = []
 
 		self.zip = zipfile.ZipFile(input_zip, 'r')
 		self.out = zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED)
 		names = set(self.zip.namelist())
 
 		# Preprocess calendar entries.
-		cal_c, cal_header = (list(x) for x in self._open_csv('calendar.txt'))
-		date_c, date_header = (list(x) for x in self._open_csv('calendar_dates.txt'))
-		cal_header, cal_c, date_header, date_c = self._preprocess_calendar(cal_header, cal_c, date_header, date_c)
+		cal_c, cal_header = self._open_csv('calendar.txt')
+		date_c, date_header = self._open_csv('calendar_dates.txt')
+		cal_header, cal_c, date_header, date_c = self._process_calendar(cal_header, cal_c, date_header, date_c)
 
 		# Write calendar.txt
 		outf = StringIO.StringIO()
 		oc = csv.writer(outf)
 		oc.writerow(cal_header)
-		self._f_calendar(cal_header, cal_c, oc)
+		[oc.writerow(x) for x in cal_c]
 		self.out.writestr('calendar.txt', outf.getvalue())
+		del cal_c
 
-		# Write calendar.txt
+		# Write calendar_dates.txt
 		outf = StringIO.StringIO()
 		oc = csv.writer(outf)
 		oc.writerow(date_header)
-		self._f_calendar(date_header, date_c, oc)
+		[oc.writerow(x) for x in date_c]
 		self.out.writestr('calendar_dates.txt', outf.getvalue())
+		del date_c
 
 		# Process other special files
 		for fn, processor in SPECIAL_NAMES:
@@ -132,15 +135,80 @@ class ShittyPacker(object):
 				oc.writerow(r)
 			self.out.writestr(fn, outf.getvalue())
 
-	def _preprocess_calendar(self, cal_header, cal_c, date_header, date_c):
-		# Step one: replace all the route_ids with a hash composed of
+	def _process_calendar(self, cal_header, cal_c, date_header, date_c):
+		raw_trip_data = {}
+		
+		service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date = [cal_header.index(x) for x in 'service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date'.split(',')]
+		
+		# Collect all the data into a dict
+		for r in cal_c:
+			days_mask = r[monday] + r[tuesday] + r[wednesday] + r[thursday] + r[friday] + r[saturday] + r[sunday]
+			assert len(days_mask) == 7, 'days mask must be of length 7'
+
+			raw_trip_data[r[service_id]] = dict(
+				days=days_mask,
+				start_date=r[start_date],
+				end_date=r[end_date],
+				add=set(),
+				exclude=set()
+			)
+
+		d_service_id,d_date,d_exception_type = [date_header.index(x) for x in 'service_id,date,exception_type'.split(',')]
+		for r in date_c:
+			assert r[d_exception_type] in '12', 'exception_type must be 1 or 2'
+			raw_trip_data[r[d_service_id]]['add' if r[d_exception_type] == '1' else 'exclude'].add(r[d_date])
+
+		# Junk useless trips and replace all the route_ids with a hash composed of
 		# - the calendar bits
 		# - any holiday exclusions or inclusions
-		
-		# Step two: find duplicates and merge
-		
-		# Step three: profit
+		trip_data_map = {}
+		trip_hashes = {}
+		for service_id in raw_trip_data.keys():
+			if raw_trip_data[service_id]['days'] == '0000000' and len(raw_trip_data[service_id]['add']) == 0 and len(raw_trip_data[service_id]['exclude']) == 0:
+				# Trip never used!  Junk!
+				#print 'junking trip: %r' % service_id
+				self.null_trips.append(service_id)
+				del raw_trip_data[service_id]
+			else:
+				# Hash the trip info
+				# This is ugly, yes.
+				raw_trip_data[service_id]['add'] = list(raw_trip_data[service_id]['add'])
+				raw_trip_data[service_id]['exclude'] = list(raw_trip_data[service_id]['exclude'])
+				raw_trip_data[service_id]['add'].sort()
+				raw_trip_data[service_id]['exclude'].sort()
 
+				trip_hash = hashlib.sha1(repr(raw_trip_data[service_id])).hexdigest()
+				trip_data_map[service_id] = trip_hash
+				if trip_hash not in trip_hashes:
+					trip_hashes[trip_hash] = set()
+				trip_hashes[trip_hash].add(service_id)
+
+		# From the single set of data, merge!
+		cal_c = []
+		date_c = []
+		cal_header = 'service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date'.split(',')
+		date_header = 'service_id,date,exception_type'.split(',')
+		trip_num = 1
+		for trip_hash, service_ids in trip_hashes.iteritems():
+			#if len(service_ids) > 1:
+			#	print 'TripHash %r used %d times!' % (trip_hash, len(service_ids))
+			for service_id in service_ids:
+				trip_data_map[service_id] = str(trip_num)
+			trip_data = raw_trip_data[next(iter(service_ids))]
+			cal_c.append([
+				str(trip_num),
+			] + [x for x in trip_data['days']] + [
+				trip_data['start_date'],
+				trip_data['end_date'],
+			])
+			for d in trip_data['add']:
+				date_c.append([trip_num, d, '1'])
+			for d in trip_data['exclude']:
+				date_c.append([trip_num, d, '2'])
+			trip_num += 1
+
+		# And we're done!
+		self.service_map = trip_data_map
 		return cal_header, cal_c, date_header, date_c
 
 	def _f_shapes(self, header, c, oc):
@@ -189,32 +257,6 @@ class ShittyPacker(object):
 
 			oc.writerow(row)
 
-	def _f_calendar(self, header, c, oc):
-		"""
-		Rewrite calendar.txt.
-		"""
-		id = header.index('service_id')
-		for row in c:
-			# remap services to numbers
-
-			if row[id] not in self.service_map:
-				self.service_map[row[id]] = str(self.last_service_id)
-				self.last_service_id += 1
-
-			row[id] = self.service_map[row[id]]
-
-			oc.writerow(row)
-
-	def _f_calendar_dates(self, header, c, oc):
-		"""
-		Rewrite calendar_dates.txt.
-		"""
-		id = header.index('service_id')
-		for row in c:
-			# remap services to numbers
-			row[id] = self.service_map[row[id]]
-			oc.writerow(row)
-
 
 	def _f_trips(self, header, c, oc):
 		"""
@@ -233,6 +275,9 @@ class ShittyPacker(object):
 
 			row[tid] = self.trip_map[row[tid]]
 			row[rid] = self.route_map[row[rid]]
+			if row[eid] in self.null_trips:
+				# Junked service_id that is never used, drop!
+				continue
 			row[eid] = self.service_map[row[eid]]
 			row[hid] = self.shape_map[row[hid]]
 
