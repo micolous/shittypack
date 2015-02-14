@@ -221,7 +221,10 @@ class ShittyPacker(object):
 		id = header.index('shape_id')
 		lat = header.index('shape_pt_lat')
 		lng = header.index('shape_pt_lon')
-		dst = header.index('shape_dist_traveled')
+		if 'shape_dist_traveled' in header:
+			dst = header.index('shape_dist_traveled')
+		else:
+			dst = None
 
 		for row in c:
 			# clamp decimal places
@@ -229,7 +232,7 @@ class ShittyPacker(object):
 				row[lat] = row[lat][:row[lat].index('.')+7]
 			if '.' in row[lng]:
 				row[lng] = row[lng][:row[lng].index('.')+7]
-			if '.' in row[dst]:
+			if dst is not None and '.' in row[dst]:
 				row[dst] = row[dst][:row[dst].index('.')+2]
 
 			# remap shapes to numbers
@@ -290,14 +293,17 @@ class ShittyPacker(object):
 		Rewrite stop_times.txt.
 		"""
 		# Clamp trip distance to 1 decimal place
-		dst = header.index('shape_dist_traveled')
+		if 'shape_dist_traveled' in header:
+			dst = header.index('shape_dist_traveled')
+		else:
+			dst = None
 		trip_id = header.index('trip_id')
 		for row in c:
 			if row[trip_id] in self.null_trips:
 				#print 'null trip! %r' % row[trip_id]
 				continue
 
-			if '.' in row[dst]:
+			if dst is not None and '.' in row[dst]:
 				row[dst] = row[dst][:row[dst].index('.')+2]
 
 
