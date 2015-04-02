@@ -270,7 +270,10 @@ class ShittyPacker(object):
 			row[tid] = self.trip_map[row[tid]]
 			row[rid] = self.route_map[row[rid]]
 			row[eid] = self.service_map[row[eid]]
-			row[hid] = self.shape_map[row[hid]]
+			if row[hid] != '':
+				# Including a shape is optional
+				# Some Victorian services lack shapes
+				row[hid] = self.shape_map[row[hid]]
 
 			oc.writerow(row)
 
