@@ -49,11 +49,12 @@ class ShittyPacker(object):
 
 	def __init__(self, input_zip, output_zip):
 		SPECIAL_NAMES = [
-			('shapes.txt', self._f_shapes),
-			('routes.txt', self._f_routes),
-			('trips.txt', self._f_trips),
-			('stop_times.txt', self._f_stop_times),
-			('stops.txt', self._f_stops),
+			('routes.txt', self._f_routes, True),
+			('trips.txt', self._f_trips, True),
+			('shapes.txt', self._f_shapes, False),
+			('stop_times.txt', self._f_stop_times, True),
+			('stops.txt', self._f_stops, True),
+			('transfers.txt', self._f_transfers, False),
 		]
 		SKIP_NAMES = ['calendar.txt', 'calendar_dates.txt']
 
@@ -73,6 +74,9 @@ class ShittyPacker(object):
 		self.trip_map = {}
 		self.last_trip_id = 0
 		self.null_trips = set()
+
+		self.stop_id_map = {}
+		self.last_stop_id = 0
 
 		self.zip = zipfile.ZipFile(input_zip, 'r')
 		self.out = zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED)
@@ -100,9 +104,10 @@ class ShittyPacker(object):
 		del date_c
 
 		# Process other special files
-		for fn, processor in SPECIAL_NAMES:
+		for fn, processor, required in SPECIAL_NAMES:
 			if fn not in names:
-				print "WARNING: Could not find %r" % fn
+				if required:
+					print "WARNING: Could not find %r" % fn
 				continue
 
 			outf = StringIO.StringIO()
@@ -213,6 +218,12 @@ class ShittyPacker(object):
 			dst = None
 
 		for row in c:
+			# remap shapes to numbers, and skip any that aren't used by any trip
+			if row[id] not in self.shape_map:
+				continue
+
+			row[id] = self.shape_map[row[id]]
+
 			# clamp decimal places
 			if '.' in row[lat]:
 				row[lat] = row[lat][:row[lat].index('.')+7]
@@ -220,13 +231,6 @@ class ShittyPacker(object):
 				row[lng] = row[lng][:row[lng].index('.')+7]
 			if dst is not None and '.' in row[dst]:
 				row[dst] = row[dst][:row[dst].index('.')+2]
-
-			# remap shapes to numbers
-			if row[id] not in self.shape_map:
-				self.shape_map[row[id]] = str(self.last_shape_id)
-				self.last_shape_id += 1
-
-			row[id] = self.shape_map[row[id]]
 
 			oc.writerow(row)
 
@@ -273,6 +277,10 @@ class ShittyPacker(object):
 			if row[hid] != '':
 				# Including a shape is optional
 				# Some Victorian services lack shapes
+				if row[hid] not in self.shape_map:
+					self.shape_map[row[hid]] = str(self.last_shape_id)
+					self.last_shape_id += 1
+
 				row[hid] = self.shape_map[row[hid]]
 
 			oc.writerow(row)
@@ -286,20 +294,58 @@ class ShittyPacker(object):
 			dst = header.index('shape_dist_traveled')
 		else:
 			dst = None
+
 		trip_id = header.index('trip_id')
+		stop_id = header.index('stop_id')
+
 		for row in c:
 			if row[trip_id] in self.null_trips:
-				#print 'null trip! %r' % row[trip_id]
+				# This is a trip that is never taken, junk it
 				continue
 
 			if dst is not None and '.' in row[dst]:
 				row[dst] = row[dst][:row[dst].index('.')+2]
 
+			# Rewrite stop id
+			if row[stop_id] not in self.stop_id_map:
+				self.stop_id_map[row[stop_id]] = str(self.last_stop_id)
+				self.last_stop_id += 1
 
+			row[stop_id] = self.stop_id_map[row[stop_id]]
 			row[trip_id] = self.trip_map[row[trip_id]]
 
 			oc.writerow(row)
 
+
+	def _f_transfers(self, header, c, oc):
+		"""
+		Rewrite transfers.txt
+		"""
+		from_stop_id = header.index('from_stop_id')
+		to_stop_id = header.index('to_stop_id')
+		transfer_type = header.index('transfer_type')
+		if 'min_transfer_time' in header:
+			min_transfer_time = header.index('min_transfer_time')
+		else:
+			min_transfer_time = None
+
+		for row in c:
+			if row[from_stop_id] not in self.stop_id_map or row[to_stop_id] not in self.stop_id_map:
+				# Nuked stop, skip
+				continue
+
+			row[from_stop_id] = self.stop_id_map[row[from_stop_id]]
+			row[to_stop_id] = self.stop_id_map[row[to_stop_id]]
+
+			if row[transfer_type] != '':
+				# May be non-integer, force to integer
+				row[transfer_type] = str(int(row[transfer_type]))
+				if row[transfer_type] == '0':
+					row[transfer_type] = ''
+
+			if min_transfer_time is not None and row[min_transfer_time] != '':
+				# Force to integer
+				row[min_transfer_time] = str(int(row[min_transfer_time]))
 
 	def _f_stops(self, header, c, oc):
 		"""
@@ -308,8 +354,49 @@ class ShittyPacker(object):
 		# Clamp stop lat/long to 6 decimal places
 		lat = header.index('stop_lat')
 		lng = header.index('stop_lon')
+		stop_id = header.index('stop_id')
+		if 'location_type' in header:
+			location_type = header.index('location_type')
+		else:
+			location_type = None
+
+		if 'parent_station' in header:
+			parent_station = header.index('parent_station')
+		else:
+			location_type = None
 
 		for row in c:
+			# Determine if the stop is unused and we should remove it
+			if row[stop_id] not in self.stop_id_map:
+				if location_type is None or row[location_type] in ('', '0'):
+					# This is a regular stop, and not a station, so is not referenced
+					# Skip!
+					continue
+
+				elif row[location_type] == '1':
+					# This is a parent station, we should register our number
+					self.stop_id_map[row[stop_id]] = str(self.last_stop_id)
+					self.last_stop_id += 1
+				else:
+					raise Exception, 'unknown location type = %r' % (row[location_type],)
+
+			# Mapping should exist by this point
+			row[stop_id] = self.stop_id_map[row[stop_id]]
+
+			# See if we can assign a number for the parent station
+			# Stations can't contain other stations, so we don't accept this if
+			# location_type != 0 or blank
+			if parent_station is not None and location_type is not None and row[parent_station] != '' and row[location_type] in ('', '0'):
+				if row[parent_station] not in self.stop_id_map:
+					self.stop_id_map[row[parent_station]] = str(self.last_stop_id)
+					self.last_stop_id += 1
+
+				row[parent_station] = self.stop_id_map[row[parent_station]]
+
+			if location_type is not None and row[location_type] == '0':
+				# We can shorten this to just blank
+				row[location_type] = ''
+
 			if '.' in row[lat]:
 				row[lat] = row[lat][:row[lat].index('.')+7]
 			if '.' in row[lng]:
@@ -332,6 +419,7 @@ class ShittyPacker(object):
 		header = [x.strip() for x in c.next()]
 		return c, header
 
+
 def main():
 	parser = argparse.ArgumentParser()
 
@@ -340,9 +428,8 @@ def main():
 
 	options = parser.parse_args()
 	packer = ShittyPacker(options.zip[0], options.output_zip)
-	
-
 
 
 if __name__ == '__main__':
 	main()
+
