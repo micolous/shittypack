@@ -394,6 +394,8 @@ class ShittyPacker(object):
 				# Force to integer
 				row[min_transfer_time] = str(int(row[min_transfer_time]))
 
+			oc.writerow(row)
+
 	def _f_stops(self, header, c, oc):
 		"""
 		Rewrite stops.txt.
