@@ -22,6 +22,8 @@ I'm aware you could do better with some binary format like `protobuf`, but we ac
 - Rewrites `calendar.txt` and `calendar_dates.txt` to remove unused and duplicate records.
 - Removes entries from `trips.txt` and `stop_times.txt` for trips that are never taken (because of the calendar).
 - Removes unused shapes, stops and transfers (because there are no trips that follow the route or stop there).
+- Uses UNIX linefeeds.
+- Removes empty records.
 
 This makes the file size of [most data sets tested less than 70% of their original size](#results).
 
@@ -49,18 +51,18 @@ Conversely, higher percentages mean that shittypack was not able to make big imp
 
 Agency (District)         | Location | Date       | Source   | Packed   | %   | CSP?
 ------------------------- | -------- | ---------- | -------- | -------- | --- | ----
-Public Transport Victoria | VIC, AU  | 2015-03-30 | 0.98 GiB | 334 MiB  | 33% | Yes
-Transport for NSW         | NSW, AU  | 2015-01-01 | 1.16 GiB | 457 MiB  | 38% | Yes
-Transport for NSW         | NSW, AU  | 2015-04-02 | 0.94 GiB | 456 MiB  | 47% | Yes
+Public Transport Victoria | VIC, AU  | 2015-03-30 | 0.98 GiB | 334 MiB  | 33% | No
+Transport for NSW         | NSW, AU  | 2015-01-01 | 1.16 GiB | 457 MiB  | 38% | No
+Transport for NSW         | NSW, AU  | 2015-04-02 | 0.94 GiB | 446 MiB  | 46% | Yes
 MetroTAS (Hobart)         | TAS, AU  | 2015-03-18 | 23.5 MiB | 13.3 MiB | 56% | No
 qConnect (Sunshine Coast) | QLD, AU  | 2014-11-24 | 145 KiB  | 83 KiB   | 57% | No
 Translink (Brisbane)      | QLD, AU  | 2015-03-25 | 220 MiB  | 132 MiB  | 60% | No
 ACTION                    | ACT, AU  | 2015-04-01 | 41.4 MiB | 25.4 MiB | 61% | No
 Auckland Transit          | AUK, NZ  | 2015-02-13 | 47.3 MiB | 32.5 MiB | 69% | No
 Wellington Metlink        | WGN, NZ  | 2015-01-14 | 34.1 MiB | 28.6 MiB | 84% | No
-Adelaide Metro            | SA, AU   | 2015-02-12 | 56.1 MiB | 48.6 MiB | 87% | Yes
+Adelaide Metro            | SA, AU   | 2015-02-12 | 56.1 MiB | 48.6 MiB | 87% | No
 Transperth                | WA, AU   | 2015-04-01 | 90.9 MiB | 82.7 MiB | 91% | No
-Metro Canterbury          | CAN, NZ  | 2015-04-05 | 12.7 MiB | 12.1 MiB | 96% | Yes
+Metro Canterbury          | CAN, NZ  | 2015-04-05 | 12.7 MiB | 12.1 MiB | 96% | No
 
 `CSP` = Current Shittypack version.  Newer versions of shittypack have better results, but testing is slow.  Results will be updated *in due course*.
 

@@ -88,21 +88,21 @@ Percentage of original size: 47%
 
 ## Shitty-packed data ##
 
-- Uncompressed: 470 MiB (48% of original)
+- Uncompressed: 470 MiB (46% of original)
 
 ```
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-     9453  2015-04-05 21:17   calendar.txt
-    33369  2015-04-05 21:17   calendar_dates.txt
-     3748  2015-04-05 21:17   agency.txt
-   104221  2015-04-05 21:17   routes.txt
-  7389678  2015-04-05 21:17   trips.txt
-149840238  2015-04-05 21:17   shapes.txt
-319392181  2015-04-05 21:18   stop_times.txt
-  2405040  2015-04-05 21:18   stops.txt
+     9196  2015-04-06 00:24   calendar.txt
+    31221  2015-04-06 00:24   calendar_dates.txt
+     3698  2015-04-06 00:24   agency.txt
+   103058  2015-04-06 00:24   routes.txt
+  7194343  2015-04-06 00:24   trips.txt
+146037827  2015-04-06 00:25   shapes.txt
+312048064  2015-04-06 00:25   stop_times.txt
+  2370809  2015-04-06 00:25   stops.txt
 ---------                     -------
-479177928                     8 files
+467798216                     8 files
 ```
 
 # MetroTAS Hobart, 2015-03-18 #
