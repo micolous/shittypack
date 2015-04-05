@@ -410,7 +410,7 @@ class ShittyPacker(object):
 		if 'parent_station' in header:
 			parent_station = header.index('parent_station')
 		else:
-			location_type = None
+			parent_station = None
 
 		for row in c:
 			# Determine if the stop is unused and we should remove it
