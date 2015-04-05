@@ -44,19 +44,19 @@ As a result, lower percentages mean that shittypack was able to make big improve
 
 Conversely, higher percentages mean that shittypack was not able to make big improvements, and may indicate cities with good quality data sources.  Or that they have issues which shittypack doesn't know how to sort out just yet.
 
-Agency / Location              | Date       | Source   | Packed   | Percent
------------------------------- | ---------- | -------- | -------- | -------
-Public Transport Victoria (AU) | 2015-03-30 | 0.98 GiB | 345 MiB  | 34%
-Transport for NSW (AU)         | 2015-04-02 | 0.94 GiB | 470 MiB  | 48%
-MetroTAS Hobart (AU)           | 2015-03-18 | 23.5 MiB | 13.3 MiB | 56%
-Sunshine Coast (QLD, AU)       | 2014-11-24 | 145 KiB  | 83 KiB   | 57%
-Translink (South-East QLD, AU) | 2015-03-25 | 220 MiB  | 132 MiB  | 60%
-ACTION (ACT, AU)               | 2015-04-01 | 41.4 MiB | 25.4 MiB | 61%
-Auckland Transit (NZ)          | 2015-02-13 | 47.3 MiB | 32.5 MiB | 69%
-Wellington Metlink (NZ)        | 2015-01-14 | 34.1 MiB | 28.6 MiB | 84%
-Adelaide Metro (AU)            | 2015-02-12 | 56.1 MiB | 48.9 MiB | 87%
-Transperth (AU)                | 2015-04-01 | 90.9 MiB | 82.7 MiB | 91%
-Metro Canterbury (NZ)          | 2015-04-05 | 12.7 MiB | 12.2 MiB | 96%
+Agency (District)         | Location | Date       | Source   | Packed   | Percent
+------------------------- | -------- | ---------- | -------- | -------- | -------
+Public Transport Victoria | VIC, AU  | 2015-03-30 | 0.98 GiB | 345 MiB  | 34%
+Transport for NSW         | NSW, AU  | 2015-04-02 | 0.94 GiB | 470 MiB  | 48%
+MetroTAS (Hobart)         | TAS, AU  | 2015-03-18 | 23.5 MiB | 13.3 MiB | 56%
+qConnect (Sunshine Coast) | QLD, AU  | 2014-11-24 | 145 KiB  | 83 KiB   | 57%
+Translink (Brisbane)      | QLD, AU  | 2015-03-25 | 220 MiB  | 132 MiB  | 60%
+ACTION                    | ACT, AU  | 2015-04-01 | 41.4 MiB | 25.4 MiB | 61%
+Auckland Transit          | AUK, NZ  | 2015-02-13 | 47.3 MiB | 32.5 MiB | 69%
+Wellington Metlink        | WGN, NZ  | 2015-01-14 | 34.1 MiB | 28.6 MiB | 84%
+Adelaide Metro            | SA, AU   | 2015-02-12 | 56.1 MiB | 48.9 MiB | 87%
+Transperth                | WA, AU   | 2015-04-01 | 90.9 MiB | 82.7 MiB | 91%
+Metro Canterbury          | CAN, NZ  | 2015-04-05 | 12.7 MiB | 12.2 MiB | 96%
 
 More details on the testing methods, data quality notes and specific improvements are detailed in [results.md](https://github.com/micolous/shittypack/blob/master/results.md).
 
