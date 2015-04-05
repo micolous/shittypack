@@ -15,13 +15,13 @@ PTV's data has similar problems to TfNSW, being converted from another format.  
 Percentage of original size: 34%
 
 - Source uncompressed: 0.98GB
-- Shitty-packed uncompressed: 345 MiB
+- Shitty-packed uncompressed: 334 MiB
 
-# TfNSW "full Greater Sydney data", 2015-01-04 #
+# TfNSW "full Greater Sydney data", 2015-01-01 #
 
 Transport for NSW is large dataset, and an example of a really bad feed (as it is converted from TransXchange), so sees significant improvements after being shitty-packed.
 
-Percentage of original size: 39%
+Percentage of original size: 38%
 
 ## Source data ##
 
@@ -44,28 +44,28 @@ Percentage of original size: 39%
 
 ## Shitty-packed data ##
 
-- Uncompressed: 467 MiB (39% of original)
+- Uncompressed: 457 MiB (38% of original)
 
 ```
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-     3788  2015-02-15 01:15   agency.txt
-     8935  2015-02-15 01:14   calendar.txt
-    17694  2015-02-15 01:14   calendar_dates.txt
-    98360  2015-02-15 01:14   routes.txt
-151615306  2015-02-15 01:14   shapes.txt
-328181393  2015-02-15 01:15   stop_times.txt
-  2449603  2015-02-15 01:15   stops.txt
-  7112780  2015-02-15 01:14   trips.txt
+     8935  2015-04-05 22:03   calendar.txt
+    17694  2015-04-05 22:03   calendar_dates.txt
+     3753  2015-04-05 22:03   agency.txt
+    96855  2015-04-05 22:03   routes.txt
+  7094463  2015-04-05 22:03   trips.txt
+142093381  2015-04-05 22:04   shapes.txt
+317094960  2015-04-05 22:04   stop_times.txt
+  2374179  2015-04-05 22:04   stops.txt
 ---------                     -------
-489487859                     8 files
+468784220                     8 files
 ```
 
 # TfNSW "full Greater Sydney data", 2015-04-02 #
 
 Converted from TransXchange, but shows less improvements due to less train-replacement services (back in 2015-01-04).
 
-Percentage of original size: 48%
+Percentage of original size: 47%
 
 ## Source data ##
 
@@ -93,16 +93,16 @@ Percentage of original size: 48%
 ```
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-     3786  2015-04-05 18:52   agency.txt
-     9453  2015-04-05 18:51   calendar.txt
-    33369  2015-04-05 18:51   calendar_dates.txt
-   105782  2015-04-05 18:51   routes.txt
-152431426  2015-04-05 18:51   shapes.txt
-330485861  2015-04-05 18:52   stop_times.txt
-  2468460  2015-04-05 18:52   stops.txt
-  7396238  2015-04-05 18:51   trips.txt
+     9453  2015-04-05 21:17   calendar.txt
+    33369  2015-04-05 21:17   calendar_dates.txt
+     3748  2015-04-05 21:17   agency.txt
+   104221  2015-04-05 21:17   routes.txt
+  7389678  2015-04-05 21:17   trips.txt
+149840238  2015-04-05 21:17   shapes.txt
+319392181  2015-04-05 21:18   stop_times.txt
+  2405040  2015-04-05 21:18   stops.txt
 ---------                     -------
-492934375                     8 files
+479177928                     8 files
 ```
 
 # MetroTAS Hobart, 2015-03-18 #
@@ -408,24 +408,24 @@ Percentage of original size: 87%
 
 ## Shitty-packed data ##
 
-- Uncompressed: 48.9 MiB (87% of original)
+- Uncompressed: 48.6 MiB (87% of original)
 
 ```
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-      778  2015-02-15 01:39   agency.txt
-     1700  2015-02-15 01:39   calendar.txt
-      343  2015-02-15 01:39   calendar_dates.txt
-      167  2015-02-15 01:39   feed_info.txt
-     1103  2015-02-15 01:39   Release Notes.txt
-    79537  2015-02-15 01:39   routes.txt
- 12194668  2015-02-15 01:39   shapes.txt
- 37239230  2015-02-15 01:39   stop_times.txt
-   922242  2015-02-15 01:39   stops.txt
-     9953  2015-02-15 01:39   transfers.txt
-   803735  2015-02-15 01:39   trips.txt
+     1700  2015-04-05 22:13   calendar.txt
+      343  2015-04-05 22:13   calendar_dates.txt
+      778  2015-04-05 22:13   agency.txt
+    79537  2015-04-05 22:13   routes.txt
+   802562  2015-04-05 22:13   trips.txt
+ 12189272  2015-04-05 22:13   shapes.txt
+ 36944055  2015-04-05 22:13   stop_times.txt
+   919614  2015-04-05 22:13   stops.txt
+     8483  2015-04-05 22:13   transfers.txt
+      167  2015-04-05 22:13   feed_info.txt
+     1103  2015-04-05 22:13   Release Notes.txt
 ---------                     -------
- 51253456                     11 files
+ 50947614                     11 files
 ```
 
 # Transperth, 2015-04-01 #
@@ -501,19 +501,19 @@ Percentage of original size: 96%
 
 ## Shitty-packed data ##
 
-- Uncompressed: 12.2 MiB (96% of original)
+- Uncompressed: 12.1 MiB (96% of original)
 
 ```
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-      150  2015-04-05 16:49   agency.txt
-      264  2015-04-05 16:49   calendar.txt
-      242  2015-04-05 16:49   calendar_dates.txt
-     2697  2015-04-05 16:49   routes.txt
-   823242  2015-04-05 16:49   shapes.txt
- 11476137  2015-04-05 16:49   stop_times.txt
-   274518  2015-04-05 16:49   stops.txt
-   206876  2015-04-05 16:49   trips.txt
+      264  2015-04-05 22:18   calendar.txt
+      242  2015-04-05 22:18   calendar_dates.txt
+      149  2015-04-05 22:18   agency.txt
+     2669  2015-04-05 22:18   routes.txt
+   206321  2015-04-05 22:18   trips.txt
+   824105  2015-04-05 22:18   shapes.txt
+ 11401737  2015-04-05 22:18   stop_times.txt
+   274208  2015-04-05 22:18   stops.txt
 ---------                     -------
- 12784126                     8 files
+ 12709695                     8 files
 ```
