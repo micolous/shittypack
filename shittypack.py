@@ -8,7 +8,7 @@ BSD 3-clause license, see COPYING.
 
 """
 
-import argparse, csv, hashlib, os, zipfile
+import argparse, csv, hashlib, itertools, os, zipfile
 
 try:
 	import cStringIO as StringIO
@@ -43,6 +43,10 @@ def swallow_windows_unicode(fileobj, rewind=True):
 	if rewind:
 		fileobj.seek(pos)
 	return False
+
+
+class GtfsDialect(csv.excel):
+	lineterminator = '\n'
 
 
 class ShittyPacker(object):
@@ -94,7 +98,7 @@ class ShittyPacker(object):
 
 		# Write calendar.txt
 		outf = StringIO.StringIO()
-		oc = csv.writer(outf)
+		oc = csv.writer(outf, dialect=GtfsDialect)
 		oc.writerow(cal_header)
 		[oc.writerow(x) for x in cal_c]
 		self.out.writestr('calendar.txt', outf.getvalue())
@@ -102,7 +106,7 @@ class ShittyPacker(object):
 
 		# Write calendar_dates.txt
 		outf = StringIO.StringIO()
-		oc = csv.writer(outf)
+		oc = csv.writer(outf, dialect=GtfsDialect)
 		oc.writerow(date_header)
 		[oc.writerow(x) for x in date_c]
 		self.out.writestr('calendar_dates.txt', outf.getvalue())
@@ -116,7 +120,7 @@ class ShittyPacker(object):
 				continue
 
 			outf = StringIO.StringIO()
-			oc = csv.writer(outf)
+			oc = csv.writer(outf, dialect=GtfsDialect)
 			c, header = self._open_csv(fn)
 			oc.writerow(header)
 			processor(header, c, oc)
@@ -125,7 +129,7 @@ class ShittyPacker(object):
 		# Now work out what's left
 		for fn in (names - set((x[0] for x in SPECIAL_NAMES))) - set(SKIP_NAMES):
 			outf = StringIO.StringIO()
-			oc = csv.writer(outf)
+			oc = csv.writer(outf, dialect=GtfsDialect)
 			c, header = self._open_csv(fn)
 			oc.writerow(header)
 			for r in c:
@@ -466,6 +470,9 @@ class ShittyPacker(object):
 			input_f = self.zip.open(filename, 'r')
 		c = csv.reader(input_f)
 		header = [x.strip() for x in c.next()]
+
+		# Filter empty rows
+		c = itertools.ifilter(lambda x: len(x) > 0, c)
 		return c, header
 
 
