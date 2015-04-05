@@ -329,7 +329,7 @@ class ShittyPacker(object):
 			# We need to manually reset the file.
 			input_f = self.zip.open(filename, 'r')
 		c = csv.reader(input_f)
-		header = c.next()
+		header = [x.strip() for x in c.next()]
 		return c, header
 
 def main():
