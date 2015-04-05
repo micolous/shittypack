@@ -47,20 +47,20 @@ As a result, lower percentages mean that shittypack was able to make big improve
 
 Conversely, higher percentages mean that shittypack was not able to make big improvements, and may indicate cities with good quality data sources.  Or that they have issues which shittypack doesn't know how to sort out just yet.
 
-Agency (District)         | Location | Date       | Source   | Packed   | Percent | CSP?
-------------------------- | -------- | ---------- | -------- | -------- | ------- | ----
-Public Transport Victoria | VIC, AU  | 2015-03-30 | 0.98 GiB | 334 MiB  | 33%     | Yes
-Transport for NSW         | NSW, AU  | 2015-01-04 | 1.16 GiB | 457 MiB  | 38%     | Yes
-Transport for NSW         | NSW, AU  | 2015-04-02 | 0.94 GiB | 456 MiB  | 47%     | Yes
-MetroTAS (Hobart)         | TAS, AU  | 2015-03-18 | 23.5 MiB | 13.3 MiB | 56%     | No
-qConnect (Sunshine Coast) | QLD, AU  | 2014-11-24 | 145 KiB  | 83 KiB   | 57%     | No
-Translink (Brisbane)      | QLD, AU  | 2015-03-25 | 220 MiB  | 132 MiB  | 60%     | No
-ACTION                    | ACT, AU  | 2015-04-01 | 41.4 MiB | 25.4 MiB | 61%     | No
-Auckland Transit          | AUK, NZ  | 2015-02-13 | 47.3 MiB | 32.5 MiB | 69%     | No
-Wellington Metlink        | WGN, NZ  | 2015-01-14 | 34.1 MiB | 28.6 MiB | 84%     | No
-Adelaide Metro            | SA, AU   | 2015-02-12 | 56.1 MiB | 48.6 MiB | 87%     | Yes
-Transperth                | WA, AU   | 2015-04-01 | 90.9 MiB | 82.7 MiB | 91%     | No
-Metro Canterbury          | CAN, NZ  | 2015-04-05 | 12.7 MiB | 12.1 MiB | 96%     | Yes
+Agency (District)         | Location | Date       | Source   | Packed   | %   | CSP?
+------------------------- | -------- | ---------- | -------- | -------- | --- | ----
+Public Transport Victoria | VIC, AU  | 2015-03-30 | 0.98 GiB | 334 MiB  | 33% | Yes
+Transport for NSW         | NSW, AU  | 2015-01-01 | 1.16 GiB | 457 MiB  | 38% | Yes
+Transport for NSW         | NSW, AU  | 2015-04-02 | 0.94 GiB | 456 MiB  | 47% | Yes
+MetroTAS (Hobart)         | TAS, AU  | 2015-03-18 | 23.5 MiB | 13.3 MiB | 56% | No
+qConnect (Sunshine Coast) | QLD, AU  | 2014-11-24 | 145 KiB  | 83 KiB   | 57% | No
+Translink (Brisbane)      | QLD, AU  | 2015-03-25 | 220 MiB  | 132 MiB  | 60% | No
+ACTION                    | ACT, AU  | 2015-04-01 | 41.4 MiB | 25.4 MiB | 61% | No
+Auckland Transit          | AUK, NZ  | 2015-02-13 | 47.3 MiB | 32.5 MiB | 69% | No
+Wellington Metlink        | WGN, NZ  | 2015-01-14 | 34.1 MiB | 28.6 MiB | 84% | No
+Adelaide Metro            | SA, AU   | 2015-02-12 | 56.1 MiB | 48.6 MiB | 87% | Yes
+Transperth                | WA, AU   | 2015-04-01 | 90.9 MiB | 82.7 MiB | 91% | No
+Metro Canterbury          | CAN, NZ  | 2015-04-05 | 12.7 MiB | 12.1 MiB | 96% | Yes
 
 `CSP` = Current Shittypack version.  Newer versions of shittypack have better results, but testing is slow.  Results will be updated *in due course*.
 
