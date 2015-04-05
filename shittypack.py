@@ -49,6 +49,7 @@ class ShittyPacker(object):
 
 	def __init__(self, input_zip, output_zip):
 		SPECIAL_NAMES = [
+			('agency.txt', self._f_agency, True),
 			('routes.txt', self._f_routes, True),
 			('trips.txt', self._f_trips, True),
 			('shapes.txt', self._f_shapes, False),
@@ -77,6 +78,10 @@ class ShittyPacker(object):
 
 		self.stop_id_map = {}
 		self.last_stop_id = 0
+
+		self.agency_map = {}
+		self.last_agency_id = 0
+		self.one_agency = False
 
 		self.zip = zipfile.ZipFile(input_zip, 'r')
 		self.out = zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED)
@@ -203,6 +208,37 @@ class ShittyPacker(object):
 		self.service_map = trip_data_map
 		return cal_header, cal_c, date_header, date_c
 
+
+	def _f_agency(self, header, c, oc):
+		if 'agency_id' in header:
+			agency_id = header.index('agency_id')
+		else:
+			agency_id = None
+			self.one_agency = True
+
+		# Convert to list so we can peek
+		c = list(c)
+		if len(c) <= 1:
+			self.one_agency = True
+		elif self.one_agency:
+			# > 1 agency exists, but we were already in one_agency mode
+			# This is a fault
+			raise Exception, 'agency_id field missing from agency.txt, and more than one agency exists.'
+
+		for row in c:
+			if self.one_agency and agency_id is not None:
+				# Only one agency, we can blank the ID
+				row[agency_id] = ''
+			else:
+				if row[agency_id] in self.agency_map:
+					raise Exception, 'Duplicated agency_id in use!'
+
+				self.agency_map[row[agency_id]] = str(self.last_agency_id)
+				row[agency_id] = self.agency_map[row[agency_id]]
+				self.last_agency_id += 1
+
+			oc.writerow(row)
+
 	def _f_shapes(self, header, c, oc):
 		"""
 		Rewrite shapes.txt.
@@ -240,6 +276,11 @@ class ShittyPacker(object):
 		Rewrite routes.txt
 		"""
 		id = header.index('route_id')
+		if 'agency_id' in header:
+			agency_id = header.index('agency_id')
+		else:
+			agency_id = None
+
 		for row in c:
 			# remap routes to numbers
 
@@ -248,6 +289,12 @@ class ShittyPacker(object):
 				self.last_route_id += 1
 
 			row[id] = self.route_map[row[id]]
+
+			if agency_id is not None:
+				if self.one_agency:
+					row[agency_id] = ''
+				else:
+					row[agency_id] = self.agency_map[row[agency_id]]
 
 			oc.writerow(row)
 
