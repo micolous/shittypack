@@ -230,9 +230,10 @@ class ShittyPacker(object):
 			raise Exception, 'agency_id field missing from agency.txt, and more than one agency exists.'
 
 		for row in c:
-			if self.one_agency and agency_id is not None:
-				# Only one agency, we can blank the ID
-				row[agency_id] = ''
+			if self.one_agency:
+				if agency_id is not None:
+					# Only one agency, we can blank the ID
+					row[agency_id] = ''
 			else:
 				if row[agency_id] in self.agency_map:
 					raise Exception, 'Duplicated agency_id in use!'
