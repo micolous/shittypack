@@ -15,13 +15,11 @@ try:
 except ImportError:
 	import StringIO
 
-# Special files that need to be processed first.
-
 
 def swallow_windows_unicode(fileobj, rewind=True):
 	"""
-	Windows programs (specifically, Notepad) puts '\xef\xbb\xbf' at the start of
-	a Unicode text file.  This is used to handle "utf-8-sig" files.
+	Windows programs put '\xef\xbb\xbf' at the start of a Unicode text file.
+	This is used to handle "utf-8-sig" files.
 
 	This function looks for those bytes and advances the stream past them if
 	they are present.
@@ -43,6 +41,15 @@ def swallow_windows_unicode(fileobj, rewind=True):
 	if rewind:
 		fileobj.seek(pos)
 	return False
+
+def try_index(array, value, default=None):
+	"""
+	Tries to get the index of value in array, otherwise returns default (None).
+	"""
+	try:
+		return array.index(value)
+	except ValueError:
+		return default
 
 
 class GtfsDialect(csv.excel):
@@ -128,13 +135,20 @@ class ShittyPacker(object):
 
 		# Now work out what's left
 		for fn in (names - set((x[0] for x in SPECIAL_NAMES))) - set(SKIP_NAMES):
-			outf = StringIO.StringIO()
-			oc = csv.writer(outf, dialect=GtfsDialect)
-			c, header = self._open_csv(fn)
-			oc.writerow(header)
-			for r in c:
-				oc.writerow(r)
-			self.out.writestr(fn, outf.getvalue())
+			fnl = fn.lower()
+			if not fnl.endswith('.txt') or 'license' in fnl or 'notes' in fnl:
+				# This is a metadata file, just copy it.
+				datafile_content = self.zip.open(fn, 'r').read()
+				self.out.writestr(fn, datafile_content)
+			else:
+				# This is probably some unknown datafile, try to handle it by
+				# rewriting what we may have broken.
+				outf = StringIO.StringIO()
+				oc = csv.writer(outf, dialect=GtfsDialect)
+				c, header = self._open_csv(fn)
+				oc.writerow(header)
+				self._f_generic(header, c, oc)
+				self.out.writestr(fn, outf.getvalue())
 
 	def _process_calendar(self, cal_header, cal_c, date_header, date_c):
 		raw_trip_data = {}
@@ -214,10 +228,11 @@ class ShittyPacker(object):
 
 
 	def _f_agency(self, header, c, oc):
-		if 'agency_id' in header:
-			agency_id = header.index('agency_id')
-		else:
-			agency_id = None
+		"""
+		Rewrite agency.txt
+		"""
+		agency_id = try_index(header, 'agency_id')
+		if agency_id is None:
 			self.one_agency = True
 
 		# Convert to list so we can peek
@@ -253,10 +268,7 @@ class ShittyPacker(object):
 		id = header.index('shape_id')
 		lat = header.index('shape_pt_lat')
 		lng = header.index('shape_pt_lon')
-		if 'shape_dist_traveled' in header:
-			dst = header.index('shape_dist_traveled')
-		else:
-			dst = None
+		dst = try_index(header, 'shape_dist_traveled')
 
 		for row in c:
 			# remap shapes to numbers, and skip any that aren't used by any trip
@@ -281,10 +293,7 @@ class ShittyPacker(object):
 		Rewrite routes.txt
 		"""
 		id = header.index('route_id')
-		if 'agency_id' in header:
-			agency_id = header.index('agency_id')
-		else:
-			agency_id = None
+		agency_id = try_index(header, 'agency_id')
 
 		for row in c:
 			# remap routes to numbers
@@ -342,10 +351,7 @@ class ShittyPacker(object):
 		Rewrite stop_times.txt.
 		"""
 		# Clamp trip distance to 1 decimal place
-		if 'shape_dist_traveled' in header:
-			dst = header.index('shape_dist_traveled')
-		else:
-			dst = None
+		dst = try_index(header, 'shape_dist_traveled')
 
 		trip_id = header.index('trip_id')
 		stop_id = header.index('stop_id')
@@ -376,10 +382,7 @@ class ShittyPacker(object):
 		from_stop_id = header.index('from_stop_id')
 		to_stop_id = header.index('to_stop_id')
 		transfer_type = header.index('transfer_type')
-		if 'min_transfer_time' in header:
-			min_transfer_time = header.index('min_transfer_time')
-		else:
-			min_transfer_time = None
+		min_transfer_time = try_index(header, 'min_transfer_time')
 
 		for row in c:
 			if row[from_stop_id] not in self.stop_id_map or row[to_stop_id] not in self.stop_id_map:
@@ -409,15 +412,8 @@ class ShittyPacker(object):
 		lat = header.index('stop_lat')
 		lng = header.index('stop_lon')
 		stop_id = header.index('stop_id')
-		if 'location_type' in header:
-			location_type = header.index('location_type')
-		else:
-			location_type = None
-
-		if 'parent_station' in header:
-			parent_station = header.index('parent_station')
-		else:
-			parent_station = None
+		location_type = try_index(header, 'location_type')
+		parent_station = try_index(header, 'parent_station')
 
 		for row in c:
 			# Determine if the stop is unused and we should remove it
@@ -458,6 +454,33 @@ class ShittyPacker(object):
 
 			oc.writerow(row)
 
+	def _f_generic(self, header, c, oc):
+		"""
+		Generic rewriter for unknown file types.
+		"""
+
+		agency_id = try_index(header, 'agency_id')
+		route_id = try_index(header, 'route_id')
+		shape_id = try_index(header, 'shape_id')
+		stop_id = try_index(header, 'stop_id')
+		trip_id = try_index(header, 'trip_id')
+		service_id = try_index(header, 'service_id')
+
+		for row in c:
+			if agency_id is not None:
+				row[agency_id] = self.agency_map[row[agency_id]]
+			if route_id is not None:
+				row[route_id] = self.route_map[row[route_id]]
+			if shape_id is not None:
+				row[shape_id] = self.shape_map[row[shape_id]]
+			if stop_id is not None:
+				row[stop_id] = self.stop_map[row[stop_id]]
+			if trip_id is not None:
+				row[trip_id] = self.trip_map[row[trip_id]]
+			if service_id is not None:
+				row[service_id] = self.service_map[row[service_id]]
+
+			oc.writerow(row)
 
 	def _open_csv(self, filename):
 		"""
