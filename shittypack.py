@@ -15,6 +15,13 @@ try:
 except ImportError:
 	import StringIO
 
+# These substrings, if they appear in filenames, will not be modified by
+# shittypack.  All values must be lowercase (and it is checked case insensitive)
+BLACKLIST_NAMES = [
+	'license',
+	'notes',
+	'licence',
+]
 
 def swallow_windows_unicode(fileobj, rewind=True):
 	"""
@@ -51,6 +58,20 @@ def try_index(array, value, default=None):
 	except ValueError:
 		return default
 
+
+def blacklisted_file(fn):
+	"""
+	Checks if shittypack shouldn't touch a given filename.
+	"""
+	fnl = fn.lower()
+	if not fnl.endswith('.txt'):
+		return True
+
+	for x in BLACKLIST_NAMES:
+		if x in fnl:
+			return True
+
+	return False
 
 class GtfsDialect(csv.excel):
 	lineterminator = '\n'
@@ -135,8 +156,7 @@ class ShittyPacker(object):
 
 		# Now work out what's left
 		for fn in (names - set((x[0] for x in SPECIAL_NAMES))) - set(SKIP_NAMES):
-			fnl = fn.lower()
-			if not fnl.endswith('.txt') or 'license' in fnl or 'notes' in fnl:
+			if blacklisted_file(fn):
 				# This is a metadata file, just copy it.
 				datafile_content = self.zip.open(fn, 'r').read()
 				self.out.writestr(fn, datafile_content)
