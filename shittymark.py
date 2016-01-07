@@ -80,10 +80,10 @@ def main():
 
 	group = parser.add_argument_group('Single-file mode')
 
-	group.add_argument('-s', '--source-file',
+	group.add_argument('-s', '--source-file', required=True,
 		help='Source, non-packed file to compare from')
 
-	group.add_argument('-p', '--packed-file',
+	group.add_argument('-p', '--packed-file', required=True,
 		help='New, Shittypacked file to compare to')
 
 
