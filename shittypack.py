@@ -299,11 +299,11 @@ class ShittyPacker(object):
 
 			# clamp decimal places
 			if '.' in row[lat]:
-				row[lat] = row[lat][:row[lat].index('.')+7]
+				row[lat] = row[lat][:row[lat].index('.')+7].strip()
 			if '.' in row[lng]:
-				row[lng] = row[lng][:row[lng].index('.')+7]
+				row[lng] = row[lng][:row[lng].index('.')+7].strip()
 			if dst is not None and '.' in row[dst]:
-				row[dst] = row[dst][:row[dst].index('.')+2]
+				row[dst] = row[dst][:row[dst].index('.')+2].strip()
 
 			oc.writerow(row)
 
@@ -468,9 +468,9 @@ class ShittyPacker(object):
 				row[location_type] = ''
 
 			if '.' in row[lat]:
-				row[lat] = row[lat][:row[lat].index('.')+7]
+				row[lat] = row[lat][:row[lat].index('.')+7].strip()
 			if '.' in row[lng]:
-				row[lng] = row[lng][:row[lng].index('.')+7]
+				row[lng] = row[lng][:row[lng].index('.')+7].strip()
 
 			oc.writerow(row)
 
